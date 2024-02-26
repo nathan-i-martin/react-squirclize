@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+      "outDir": "dist",
+      "module": "nodenext",
+      "target": "esnext",
+      "sourceMap": true,
+      "allowJs": false,
+      "declaration": true,
+      "moduleResolution": "nodenext",
+      "forceConsistentCasingInFileNames": true,
+      "noImplicitReturns": true,
+      "noImplicitThis": true,
+      "noImplicitAny": true,
+      "strictNullChecks": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "dist", "example", "rollup.config.js"]
+}

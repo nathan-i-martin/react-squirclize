@@ -1,0 +1,40 @@
+{
+  "name": "react-squircle",
+  "version": "0.0.1",
+  "description": "Make anything a squircle in your React project!",
+  "private": false,
+  "author": "Nathan Martin",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nathan-i-martin/react-state-fully.git"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "rollup -c",
+    "start": "rollup -c -w",
+    "publish": "npm run build && npm publish"
+  },
+  "eslintConfig": {
+    "extends": []
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/react": "^18.0.27",
+    "rollup": "^3.15.0",
+    "typescript": "^4.9.5"
+  }
+}
