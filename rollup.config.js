@@ -14,5 +14,5 @@ export default {
     plugins: [
         typescript()
     ],
-    external: ['react'],
+    external: ['react', "react-use-measure", "react-merge-refs"],
 }

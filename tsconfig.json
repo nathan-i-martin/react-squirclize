@@ -1,12 +1,11 @@
 {
     "compilerOptions": {
       "outDir": "dist",
-      "module": "nodenext",
+      "module": "esnext",
       "target": "esnext",
       "sourceMap": true,
       "allowJs": false,
       "declaration": true,
-      "moduleResolution": "nodenext",
       "forceConsistentCasingInFileNames": true,
       "noImplicitReturns": true,
       "noImplicitThis": true,
