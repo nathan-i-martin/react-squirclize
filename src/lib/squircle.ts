@@ -22,7 +22,6 @@ const serializeBorderString = (borderStyle: string): SquircleBorderAbsolute => {
     } as SquircleBorderAbsolute;
 
     const values = borderStyle.split(/\s(?![^(]*\))/);
-    console.log(values);
 
     values.forEach(value => {
         if(styles.includes(value)) {
