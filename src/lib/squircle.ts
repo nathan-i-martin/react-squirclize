@@ -2,8 +2,10 @@ import * as React from 'react';
 import { useCoordinates, CoordinateGeneratorSettings } from './useCoordinates';
 import useMeasure from 'react-use-measure';
 import { mergeRefs } from 'react-merge-refs';
-import { SquircleBorder, SquircleProps, SquircleQuality } from './types';
+import { BorderStyle, Color, PixelLike, SquircleBorder, SquircleBorderAbsolute, SquircleProps, SquircleQuality } from './types';
 import { Border } from './Border';
+
+const styles = ["none", "hidden", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset", "initial", "inherit"];
 
 const findBestQuality = (width: number, height: number): SquircleQuality => {
     const area = width * height;
@@ -12,26 +14,53 @@ const findBestQuality = (width: number, height: number): SquircleQuality => {
     return "lowest";
 }
 
-const resolveBorderProps = (style: any | undefined, border: SquircleBorder | undefined): SquircleBorder | undefined => {
-    if(border) return {
-        width: border.width ?? 1,
-        color: border.color ?? "white",
-        style: border.style ?? "solid"
-    };
+const serializeBorderString = (borderStyle: string): SquircleBorderAbsolute => {
+    const border = {
+        width: 1,
+        color: "white",
+        style: "solid"
+    } as SquircleBorderAbsolute;
 
-    if(style == undefined) return undefined;
+    const values = borderStyle.split(/\s(?![^(]*\))/);
+    console.log(values);
 
-    let hasResolvableBorder = false;
-    if(style["borderWidth"]) hasResolvableBorder = true;
-    if(style["borderColor"]) hasResolvableBorder = true;
-    if(style["borderStyle"]) hasResolvableBorder = true;
-    if(!hasResolvableBorder) return undefined;
+    values.forEach(value => {
+        if(styles.includes(value)) {
+            border.style = (value as BorderStyle);
+            return;
+        }
+        if(!isNaN(parseFloat(value)) || value.includes("px")) {
+            border.width = (value as PixelLike);
+            return;
+        }
+        border.color = (value as Color);
+    });
 
-    return {
-        width: style["borderWidth"] ?? 1,
-        color: style["borderColor"] ?? "white",
-        style: style["borderStyle"] ?? "solid"
-    } as SquircleBorder;
+    return border;
+}
+
+const resolveBorderProps = (style: any | undefined, border: SquircleBorder | undefined): SquircleBorderAbsolute | undefined => {
+    if(border)
+        return {
+            width: border.width ?? 1,
+            color: border.color ?? "white",
+            style: border.style ?? "solid"
+        } as SquircleBorderAbsolute;
+
+    if(style == undefined)
+        return undefined;
+
+    if(style["borderWidth"] || style["borderColor"] || style["borderStyle"])
+        return {
+            width: style["borderWidth"] ?? 1,
+            color: style["borderColor"] ?? "white",
+            style: style["borderStyle"] ?? "solid"
+        } as SquircleBorderAbsolute;
+
+    if(style["border"])
+        return serializeBorderString(style["border"] ?? "");
+
+    return undefined;
 }
 
 const prepareStyle = (style: any | undefined, coordinates: {x: number, y: number}[] ): React.CSSProperties => {

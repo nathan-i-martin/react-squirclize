@@ -5,11 +5,11 @@ type HSLA =     `hsla(${number}, ${number}%, ${number}%, ${number})`;
 type HEX =          `#${string}`;
 type NAMES =    "black" | "silver" | "gray" | "white" | "maroon" | "red" | "purple" | "fuchsia" | "green" | "lime" | "olive" | "yellow" | "navy" | "blue" | "teal" | "aqua";
 
-type Color = RGB | RGBA | HSL | HSLA | HEX | NAMES;
+export type Color = RGB | RGBA | HSL | HSLA | HEX | NAMES;
 
 export type PixelLike = number | `${number}px`;
 
-type BorderStyle = "none" | "hidden" | "dotted" | "dashed" | "solid" | "double" | "groove" | "ridge" | "inset" | "outset" | "initial" | "inherit";
+export type BorderStyle = "none" | "hidden" | "dotted" | "dashed" | "solid" | "double" | "groove" | "ridge" | "inset" | "outset" | "initial" | "inherit";
 
 export type SquircleBorder = {
     /**
@@ -31,6 +31,27 @@ export type SquircleBorder = {
      * Supports all CSS border styles.
      */
     style?: BorderStyle;
+}
+export type SquircleBorderAbsolute = {
+    /**
+     * The width of the border in pixels.
+     * Defaults to 1.
+     */
+    width: PixelLike;
+
+    /**
+     * The color of the border.
+     * Defaults to `white`.
+     * Supports all CSS color formats.
+     */
+    color: Color;
+
+    /**
+     * The style of the border.
+     * Defaults to `solid`.
+     * Supports all CSS border styles.
+     */
+    style: BorderStyle;
 }
 
 export type SquircleQuality = "highest" | "half" | "quarter" | "lowest" | number;

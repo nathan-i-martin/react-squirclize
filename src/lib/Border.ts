@@ -1,5 +1,5 @@
 import * as React from "react";
-import { PixelLike, SquircleBorder } from "./types";
+import { PixelLike, SquircleBorderAbsolute } from "./types";
 
 const resolveWidth = (pixels: PixelLike | undefined): number => {
     if(pixels == undefined) return 1;
@@ -19,12 +19,11 @@ const XYToSVG = (points: {x: number, y: number}[], width: number, height: number
     return pathString;
 }
   
-export const Border = (props: { settings: SquircleBorder, coordinates: {x: number, y: number}[], bounds: any }) => {
+export const Border = (props: { settings: SquircleBorderAbsolute, coordinates: {x: number, y: number}[], bounds: any }) => {
     const { bounds, coordinates } = props;
     const { width: unresolvedWidth, color } = props.settings;
 
     const path = XYToSVG(coordinates, bounds.width, bounds.height);
-    console.log(color, unresolvedWidth);
 
     const thickness = resolveWidth(unresolvedWidth);
 
