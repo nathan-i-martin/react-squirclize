@@ -1,8 +1,9 @@
 {
     "compilerOptions": {
       "outDir": "dist",
-      "module": "esnext",
+      "module": "CommonJS",
       "target": "esnext",
+      "moduleResolution": "Node10",
       "sourceMap": true,
       "allowJs": false,
       "declaration": true,

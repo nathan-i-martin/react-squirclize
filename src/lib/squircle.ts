@@ -1,11 +1,16 @@
 import * as React from 'react';
-import { useCoordinates, CoordinateGeneratorSettings } from './useCoordinates';
-import useMeasure from 'react-use-measure';
+import { useCoordinates, CoordinateGeneratorSettings } from './useCoordinates.js';
+import useMeasure, { RectReadOnly } from 'react-use-measure';
 import { mergeRefs } from 'react-merge-refs';
-import { BorderStyle, Color, PixelLike, SquircleBorder, SquircleBorderAbsolute, SquircleProps, SquircleQuality } from './types';
-import { Border } from './Border';
+import { BorderStyle, Color, PixelLike, SquircleBorderSettings, SquircleProps, SquircleQuality } from './types.js';
+import { Border } from './Border.js';
 
 const styles = ["none", "hidden", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset", "initial", "inherit"];
+
+const blockStyles = (style: CSSStyleDeclaration) => {
+    style.border = "none";
+    style.borderRadius = "none";
+}
 
 const findBestQuality = (width: number, height: number): SquircleQuality => {
     const area = width * height;
@@ -14,12 +19,12 @@ const findBestQuality = (width: number, height: number): SquircleQuality => {
     return "lowest";
 }
 
-const serializeBorderString = (borderStyle: string): SquircleBorderAbsolute => {
+const serializeBorderString = (borderStyle: string): SquircleBorderSettings => {
     const border = {
         width: 1,
         color: "white",
         style: "solid"
-    } as SquircleBorderAbsolute;
+    } as SquircleBorderSettings;
 
     const values = borderStyle.split(/\s(?![^(]*\))/);
 
@@ -38,94 +43,75 @@ const serializeBorderString = (borderStyle: string): SquircleBorderAbsolute => {
     return border;
 }
 
-const resolveBorderProps = (style: any | undefined, border: SquircleBorder | undefined): SquircleBorderAbsolute | undefined => {
-    if(border)
-        return {
-            width: border.width ?? 1,
-            color: border.color ?? "white",
-            style: border.style ?? "solid"
-        } as SquircleBorderAbsolute;
+const border = (settings: SquircleBorderSettings | undefined, coordinates: {x: number, y: number}[], bounds: any): React.ReactSVGElement | undefined => 
+    settings != undefined ? Border({ settings, coordinates, bounds }) : undefined ;
 
-    if(style == undefined)
-        return undefined;
+const mutateStyle = (mutableStyle: CSSStyleDeclaration | undefined, coordinates: {x: number, y: number}[] ) => {
+    if(!mutableStyle) return;
 
+    mutableStyle.clipPath = `polygon(${coordinates.map(c => `${c.x}% ${c.y}%`).join()})`;
+
+    blockStyles(mutableStyle);
+}
+
+const serializeStyle = (style: CSSStyleDeclaration | undefined) => {
+    if(!style) return;
+
+    let border = undefined;
     if(style["borderWidth"] || style["borderColor"] || style["borderStyle"])
-        return {
+        border = {
             width: style["borderWidth"] ?? 1,
             color: style["borderColor"] ?? "white",
             style: style["borderStyle"] ?? "solid"
-        } as SquircleBorderAbsolute;
+        } as SquircleBorderSettings;
+    if(style["border"]) border = serializeBorderString(style["border"] ?? "");
 
-    if(style["border"])
-        return serializeBorderString(style["border"] ?? "");
-
-    return undefined;
-}
-
-const prepareStyle = (style: any | undefined, coordinates: {x: number, y: number}[] ): React.CSSProperties => {
-    const clipPath = `polygon(${coordinates.map(c => `${c.x}% ${c.y}%`).join()})`;
-
+    const rounding = style["borderRadius"] != "" ? style["borderRadius"] : "10px";
+    
     return {
-        ...style,
-        border: undefined,
-        borderColor: undefined,
-        borderWidth: undefined,
-        borderStyle: undefined,
-        clipPath
-    };
+        border: border ?? undefined,
+        rounding
+    }
 }
 
-const mutateProps = (props: SquircleProps, imports: { ref: any, bounds: any }) => {
+const computeSquircle = (props: SquircleProps, imports: { ref: (element: HTMLOrSVGElement | null) => void, bounds: RectReadOnly }) => {
+    const styleRef = React.useRef<undefined | HTMLDivElement>();
+    const elementStyles = styleRef?.current?.style;
+
     const { bounds } = imports;
 
+    const serialization = serializeStyle(elementStyles);
+
     const clippingSettings = {
-        radius: props.rounding ?? 0.4,
+        radius: serialization?.rounding ?? 10,
         quality: props.quality ?? findBestQuality(bounds.width, bounds.height),
         width: bounds.width,
         height: bounds.height
     } as CoordinateGeneratorSettings;
-    const coordinates = React.useMemo(() => useCoordinates(clippingSettings),[clippingSettings]);
+    const coordinates = useCoordinates(clippingSettings);
 
-    const resolvedBorder = resolveBorderProps(props.style, props.border);
-
-    const style = prepareStyle(props.style, coordinates);
-
-    const ref = mergeRefs([imports.ref, props.ref])
+    mutateStyle(elementStyles, coordinates);
 
     const children = React.createElement(React.Fragment, null, 
-        resolvedBorder ? Border({ settings: resolvedBorder, coordinates, bounds }) : React.createElement(React.Fragment),
+        border(serialization?.border, coordinates, bounds) ?? React.createElement(React.Fragment),
         props.children
     );
 
     const prepared = {
         ...props,
-        style,
-        ref,
+        ref: mergeRefs([styleRef, imports.ref, props.ref]),
         children
     } as SquircleProps;
 
     return {
-        prepared,
-        hasBorder: resolvedBorder != undefined
+        prepared
     }
 }
 
-const createSquircleComponent = (tagName: string) => {
-    return (props: SquircleProps) => {
-        const [ ref, bounds ] = useMeasure();
+export default (props: SquircleProps) => {
+    const [ ref, bounds ] = useMeasure();
 
-        const { prepared, hasBorder } = mutateProps(props, { ref, bounds });
+    const { prepared } = computeSquircle(props, { ref, bounds });
 
-        return React.createElement(tagName, prepared, prepared.children);
-    };
+    return React.createElement("div", prepared, prepared.children);
 };
-
-const htmlElements = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'data', 'datalist', 'dd', 'del', 'details', 'dfn', 'dialog', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'label', 'legend', 'li', 'link', 'main', 'map', 'mark', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'slot', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'template', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr'];
-
-const squircle: { [key: string]: React.FC<SquircleProps> } = {};
-
-htmlElements.forEach(element => {
-    squircle[element] = createSquircleComponent(element);
-});
-
-export default squircle;

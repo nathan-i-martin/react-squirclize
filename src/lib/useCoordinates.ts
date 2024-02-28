@@ -5,6 +5,7 @@
  * URL: https://medium.com/@zubryjs/squircles-bringing-ios-7s-solution-to-rounded-rectangles-to-css-9fc35779aa65
  */
 
+import React = require("react");
 import { SquircleQuality } from "./types";
 
 const handleQuality = (quality: SquircleQuality): number => {
@@ -65,7 +66,7 @@ export type CoordinateGeneratorSettings = {
     height: number;
     quality: number;
 }
-export const useCoordinates = (settings: CoordinateGeneratorSettings): {x: number, y: number}[] => {
+export const useCoordinates = (settings: CoordinateGeneratorSettings) => React.useMemo(() => (settings: CoordinateGeneratorSettings): {x: number, y: number}[] => {
     if(settings.height == 0 || settings.width == 0) return [];
 
     const radius = calculateRadius(settings.radius);
@@ -79,4 +80,4 @@ export const useCoordinates = (settings: CoordinateGeneratorSettings): {x: numbe
     }
 
     return coordinates;
-}
+},[settings])(settings);
