@@ -2,14 +2,15 @@ import * as React from 'react';
 import { useCoordinates, CoordinateGeneratorSettings } from './useCoordinates.js';
 import useMeasure, { RectReadOnly } from 'react-use-measure';
 import { mergeRefs } from 'react-merge-refs';
-import { BorderStyle, Color, PixelLike, SquircleBorderSettings, SquircleProps, SquircleQuality } from './types.js';
+import { BorderStyle, Color, Measurement, PixelLike, SquircleBorderSettings, SquircleProps, SquircleQuality } from './types.js';
 import { Border } from './Border.js';
+import { useMeasurements } from './resolver.js';
 
 const styles = ["none", "hidden", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset", "initial", "inherit"];
 
 const blockStyles = (style: CSSStyleDeclaration) => {
-    style.border = "none";
-    style.borderRadius = "none";
+    //style.border = "hidden";
+    //style.borderRadius = "unset";
 }
 
 const findBestQuality = (width: number, height: number): SquircleQuality => {
@@ -82,13 +83,16 @@ const computeSquircle = (props: SquircleProps, imports: { ref: (element: HTMLOrS
 
     const serialization = serializeStyle(elementStyles);
 
+    console.log(serialization);
+
     const clippingSettings = {
-        radius: serialization?.rounding ?? 10,
+        radius: useMeasurements(serialization?.rounding as Measurement ?? "10px"),
         quality: props.quality ?? findBestQuality(bounds.width, bounds.height),
         width: bounds.width,
         height: bounds.height
     } as CoordinateGeneratorSettings;
     const coordinates = useCoordinates(clippingSettings);
+    console.log(coordinates);
 
     mutateStyle(elementStyles, coordinates);
 
