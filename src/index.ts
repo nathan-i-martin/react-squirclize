@@ -1,5 +1,5 @@
-import squircle from './lib/squircle.js';
+import Squircle from './lib/Squircle.js';
 
 export {
-    squircle
+    Squircle
 };

@@ -5,7 +5,7 @@
  * URL: https://medium.com/@zubryjs/squircles-bringing-ios-7s-solution-to-rounded-rectangles-to-css-9fc35779aa65
  */
 
-import React = require("react");
+import * as React from "react";
 import { SquircleQuality } from "./types";
 
 const handleQuality = (quality: SquircleQuality): number => {
