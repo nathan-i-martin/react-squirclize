@@ -1,4 +1,4 @@
-import Squircle from "./lib/squircle";
+import Squircle from "./lib/Squircle";
 
 export {
     Squircle

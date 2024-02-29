@@ -1,11 +1,6 @@
 import * as React from "react";
-import { PixelLike, SquircleBorderSettings } from "./types.js";
-
-const resolveWidth = (pixels: PixelLike | undefined): number => {
-    if(pixels == undefined) return 1;
-    if(typeof pixels === "string") return Number.parseInt(pixels.replaceAll(/[^0-9\.]/g, ""));
-    return pixels;
-}
+import { Color, Measurement } from "./types.js";
+import { useMeasurements } from "./resolver.js";
 
 const XYToSVG = (points: {x: number, y: number}[], width: number, height: number) => {
     const coordinates = points.map((c) => {
@@ -19,13 +14,13 @@ const XYToSVG = (points: {x: number, y: number}[], width: number, height: number
     return pathString;
 }
   
-export const Border = (props: { settings: SquircleBorderSettings, coordinates: {x: number, y: number}[], bounds: any }) => {
+export default (props: { settings: {width: Measurement, color: Color}, coordinates: {x: number, y: number}[], bounds: any }) => {
     const { bounds, coordinates } = props;
-    const { width: unresolvedWidth, color } = props.settings;
+    const { width, color } = props.settings;
 
     const path = XYToSVG(coordinates, bounds.width, bounds.height);
 
-    const thickness = resolveWidth(unresolvedWidth);
+    const thickness = useMeasurements(width);
 
     return React.createElement('svg', {
         width: `${bounds.width}px`,

@@ -29,16 +29,9 @@ export type Measurement =
     `${number}%`      // relative to the parent element
 ;
 
-export type SquircleBorderSettings = {
-    width: PixelLike;
-    color: Color;
-    style: BorderStyle;
-}
-
 export type SquircleQuality = "highest" | "half" | "quarter" | "lowest" | number;
 
-export type VanillaProps = React.HTMLProps<HTMLElement> & { children?: React.ReactNode };
-export type SquircleProps = VanillaProps & {
+export type SquircleSettings = {
     /**
      * The quality of the rounding algorithm.
      * The value will define how many vertices are used while creating the squircle.
@@ -47,4 +40,24 @@ export type SquircleProps = VanillaProps & {
      * If you leave this disabled, we'll try to automatically assign a good level of detail for you.
      */
     quality?: SquircleQuality;
+
+    /**
+     * The radius of the corners to make.
+     */
+    borderRadius?: Measurement;
+
+    /**
+     * The width of a border to add.
+     */
+    borderWidth?: Measurement;
+
+    /**
+     * The color to set the border to.
+     */
+    borderColor: Color;
+}
+
+export type VanillaProps = React.HTMLProps<HTMLElement> & { children?: React.ReactNode };
+export type SquircleProps = VanillaProps & {
+    settings?: SquircleSettings;
 };
