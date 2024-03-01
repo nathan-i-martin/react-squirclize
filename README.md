@@ -22,7 +22,7 @@ Squirclize adds the `Squircle` component which extends the HTML div.
 
 If you decide you want to adjust the amount that the edged are rounded by, you can use the `radius` parameter:
 ```typescript
-<squircle.div radius="20px" />
+<Squircle radius="20px" />
 ```
 `radius` supports a number of CSS standard measurement units such as "px", "pt", and "pc". You can also set it to "full" for full corner rounding.
 
