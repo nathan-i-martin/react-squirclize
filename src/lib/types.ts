@@ -18,15 +18,15 @@ export type Measurement =
     `${number}px`   | // pixels (1px = 1/96th of 1in)
     `${number}pt`   | // points (1pt = 1/72 of 1in)
     `${number}pc`   | // picas (1pc = 12pt)
-    `${number}em`   | // relative to font-size of the element
-    `${number}ex`   | // relative to the x-height of the current font
-    `${number}ch`   | // relative to the width of the "0" (zero)
-    `${number}rem`  | // relative to font-size of the root element
+//    `${number}em`   | // relative to font-size of the element
+//    `${number}ex`   | // relative to the x-height of the current font
+//    `${number}ch`   | // relative to the width of the "0" (zero)
+//    `${number}rem`  | // relative to font-size of the root element
     `${number}vw`   | // relative to 1% of the width of the viewport
-    `${number}vh`   | // relative to 1% of the height of the viewport
-    `${number}vmin` | // relative to 1% of viewport's smaller dimension
-    `${number}vmax` | // relative to 1% of viewport's larger dimension
-    `${number}%`      // relative to the parent element
+    `${number}vh`     // relative to 1% of the height of the viewport
+//    `${number}vmin` | // relative to 1% of viewport's smaller dimension
+//    `${number}vmax` | // relative to 1% of viewport's larger dimension
+//    `${number}%`      // relative to the parent element
 ;
 
 export type SquircleQuality = "highest" | "half" | "quarter" | "lowest" | number;
@@ -60,6 +60,16 @@ export type SquircleSettings = {
      * Enables debug logging for this specific squircle.
      */
     debug?: boolean;
+
+    /**
+     * Disables the Squircle's resize observer.
+     * If you set this to `true`, the Squircle will no-longer attempt to smartly resize itself as expected.
+     * This setting is a good optimization if you have the height AND width of your Squircle specifically set.
+     * 
+     * As long as your height and width are ALWAYS specifically defined as absolute values (e.g. px, pt, pc), your Squircle will not break.
+     * If you use non-absolute values (e.g. %, vw, vh, max-content, min-content, etc etc), you should leave this as false/unset.
+     */
+    frozen?: boolean;
 }
 
 export type VanillaProps = React.HTMLProps<HTMLElement> & { children?: React.ReactNode };

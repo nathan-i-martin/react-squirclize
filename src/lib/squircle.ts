@@ -5,10 +5,10 @@ import { BoundingBox, SquircleProps, SquircleQuality } from './types.js';
 import Border from "./Border.js";
 import { useMeasurements } from './resolver.js';
 
-const findBestQuality = (width: number, height: number): SquircleQuality => {
-    const area = width * height;
-    if(area > (3000 * 3000)) return "half";
-    if(area > (300 * 300)) return "quarter";
+const findBestQuality = (radius: number): SquircleQuality => {
+    if(radius > 500) return "highest";
+    if(radius > 100) return "half";
+    if(radius > 50) return "quarter";
     return "lowest";
 }
 
@@ -27,9 +27,10 @@ const computeSquircle = (props: SquircleProps, imports: { ref: React.LegacyRef<H
     const { bounds } = imports;
     const { quality, radius, border_width, border_color } = props;
 
+    const radiusAsPixels = useMeasurements(radius ?? "0px");
     const settings = {
-        radius: useMeasurements(radius ?? "0px"),
-        quality: quality ?? findBestQuality(bounds.width, bounds.height),
+        radius: radiusAsPixels,
+        quality: quality ?? findBestQuality(radiusAsPixels),
         width: bounds.width,
         height: bounds.height
     } as CoordinateGeneratorSettings;
@@ -58,7 +59,7 @@ const computeSquircle = (props: SquircleProps, imports: { ref: React.LegacyRef<H
     }
 }
 
-const useBounding = (): { bounds: BoundingBox, ref: React.LegacyRef<HTMLElement> | undefined } => {
+const useBounding = (active: boolean): { bounds: BoundingBox, ref: React.LegacyRef<HTMLElement> | undefined } => {
     const [bounds, setBounds] = React.useState({width: 0, height: 0} as BoundingBox);
     const ref = React.useRef<HTMLDivElement>(null);
 
@@ -73,10 +74,10 @@ const useBounding = (): { bounds: BoundingBox, ref: React.LegacyRef<HTMLElement>
         const { offsetWidth, offsetHeight } = ref.current;
         setBounds({ width: offsetWidth, height: offsetHeight });
 
-        observer.observe(ref.current);
+        if(active) observer.observe(ref.current);
 
         return () => {
-            observer.disconnect();
+            if(active) observer.disconnect();
         }
     }, []);
 
@@ -84,7 +85,7 @@ const useBounding = (): { bounds: BoundingBox, ref: React.LegacyRef<HTMLElement>
 }
 
 export default (props: SquircleProps) => {
-    const { ref, bounds } = useBounding();
+    const { ref, bounds } = useBounding(!props.frozen);
 
     const { prepared } = computeSquircle(props, { ref, bounds });
 
