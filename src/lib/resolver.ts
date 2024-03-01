@@ -4,8 +4,9 @@ import { Measurement } from "./types";
  * Resolves the passed measurement into a single number representing that measurment's equivalent in pixels.
  * @param meaurment The measurement to convert to pixels.
  */
-export const useMeasurements = (measurement: Measurement): number => {
+export const useMeasurements = (measurement: Measurement | "full"): number => {
     const numeric = parseFloat(measurement); // Remove non-numeric characters
+    if (measurement.includes("full")) return 9999;
     if (measurement.includes("cm")) return numeric * 96 / 2.54;
     if (measurement.includes("mm")) return numeric * 96 / 25.4;
     if (measurement.includes("in")) return numeric * 96;

@@ -44,20 +44,34 @@ export type SquircleSettings = {
     /**
      * The radius of the corners to make.
      */
-    borderRadius?: Measurement;
+    radius?: Measurement | "full";
 
     /**
      * The width of a border to add.
      */
-    borderWidth?: Measurement;
+    border_width?: Measurement;
 
     /**
      * The color to set the border to.
      */
-    borderColor: Color;
+    border_color?: Color;
+
+    /**
+     * Enables debug logging for this specific squircle.
+     */
+    debug?: boolean;
 }
 
 export type VanillaProps = React.HTMLProps<HTMLElement> & { children?: React.ReactNode };
-export type SquircleProps = VanillaProps & {
-    settings?: SquircleSettings;
-};
+export type SquircleProps = VanillaProps & SquircleSettings;
+
+export type BoundingBox = {
+    width: number;
+    height: number;
+}
+
+export type SquircleDebug = {
+    bounds: BoundingBox;
+    settings: SquircleSettings;
+    polygonMask: {x: number, y: number}[];
+}

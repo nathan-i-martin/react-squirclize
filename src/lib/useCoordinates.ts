@@ -37,12 +37,16 @@ const handlePixelRadius = (radius: { x: number, y: number }, width: number, heig
 });
 
 const squircle = (radiusPixel: number, widthPixel: number, heightPixel: number, theta: number) => {
+    if(radiusPixel <= 0) radiusPixel = 1;
+    if(widthPixel <= 0) widthPixel = 1;
+    if(heightPixel <= 0) heightPixel = 1;
+
     const skewRadius = {
         x: widthPixel > heightPixel ? radiusPixel - ((widthPixel / heightPixel) * 0.75) : radiusPixel,
         y: heightPixel > widthPixel ? radiusPixel - ((heightPixel / widthPixel) * 0.75) : radiusPixel
     }
 
-    const radius = handlePixelRadius({x: skewRadius.x, y: skewRadius.y}, widthPixel, heightPixel);
+    const radius = handlePixelRadius(skewRadius, widthPixel, heightPixel);
 
     // PAST THIS POINT, ALL VALUES SHOULD BE UNITLESS
 
@@ -59,6 +63,12 @@ const squircle = (radiusPixel: number, widthPixel: number, heightPixel: number, 
     return rounded;
 }
 
+const cropRadius = (settings: CoordinateGeneratorSettings) => {
+    let smaller = settings.width > settings.height ? settings.height : settings.width;
+    if(settings.radius > (smaller * 0.5)) return Math.floor(smaller * 0.5);
+    return settings.radius;
+}
+
 export type CoordinateGeneratorSettings = {
     radius: number;
     width: number;
@@ -67,8 +77,9 @@ export type CoordinateGeneratorSettings = {
 }
 export const useCoordinates = (settings: CoordinateGeneratorSettings) => React.useMemo(() => (settings: CoordinateGeneratorSettings): {x: number, y: number}[] => {
     if(settings.height == 0 || settings.width == 0) return [];
-
     if(settings.radius == 0) return [];
+
+    settings.radius = cropRadius(settings);
 
     const coordinates = [];
     const iterations = handleQuality(settings.quality);

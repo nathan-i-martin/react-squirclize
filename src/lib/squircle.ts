@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { useCoordinates, CoordinateGeneratorSettings } from './useCoordinates.js';
-import useMeasure, { RectReadOnly } from 'react-use-measure';
 import { mergeRefs } from 'react-merge-refs';
-import { Measurement, SquircleProps, SquircleQuality, SquircleSettings } from './types.js';
+import { BoundingBox, SquircleProps, SquircleQuality } from './types.js';
 import Border from "./Border.js";
 import { useMeasurements } from './resolver.js';
 
@@ -16,30 +15,30 @@ const findBestQuality = (width: number, height: number): SquircleQuality => {
 const style = (props: SquircleProps, coordinates: string) => {
     return {
         ...props.style,
+        position: "relative",
         border: "hidden",
-        borderRadius: "none",
+        borderRadius: "0px",
+        overflow: "hidden",
         clipPath: `polygon(${coordinates})`
     };
 }
 
-const computeSquircle = (props: SquircleProps, imports: { ref: (element: HTMLOrSVGElement | null) => void, bounds: RectReadOnly }) => {
+const computeSquircle = (props: SquircleProps, imports: { ref: React.LegacyRef<HTMLElement> | undefined, bounds: BoundingBox }) => {
     const { bounds } = imports;
-    const { quality, borderRadius, borderWidth, borderColor } = props.settings ?? {
-        quality: 'lowest',
-        borderRadius: "10px" as Measurement
-    } as SquircleSettings;
+    const { quality, radius, border_width, border_color } = props;
 
-    const clippingSettings = {
-        radius: useMeasurements(borderRadius as Measurement),
+    const settings = {
+        radius: useMeasurements(radius ?? "0px"),
         quality: quality ?? findBestQuality(bounds.width, bounds.height),
         width: bounds.width,
         height: bounds.height
     } as CoordinateGeneratorSettings;
-    const coordinates = useCoordinates(clippingSettings);
+    const coordinates = useCoordinates(settings);
+    if(props.debug) console.log({bounds, settings, polygonMask: coordinates});
 
-    const borderSettings = borderWidth || borderColor ? {
-        width: borderWidth ?? "1px",
-        color: borderColor ?? "white"
+    const borderSettings = border_width || border_color ? {
+        width: border_width ?? "1px",
+        color: border_color ?? "white"
     } : undefined;
 
     const children = React.createElement(React.Fragment, null,
@@ -50,7 +49,7 @@ const computeSquircle = (props: SquircleProps, imports: { ref: (element: HTMLOrS
     const prepared = {
         ...props,
         style: style(props, coordinates.map(c => `${c.x}% ${c.y}%`).join()),
-        ref: mergeRefs([imports.ref, props.ref]),
+        ref: mergeRefs([props.ref, imports.ref]),
         children
     } as SquircleProps;
 
@@ -59,8 +58,33 @@ const computeSquircle = (props: SquircleProps, imports: { ref: (element: HTMLOrS
     }
 }
 
+const useBounding = (): { bounds: BoundingBox, ref: React.LegacyRef<HTMLElement> | undefined } => {
+    const [bounds, setBounds] = React.useState({width: 0, height: 0} as BoundingBox);
+    const ref = React.useRef<HTMLDivElement>(null);
+
+    const observer = new ResizeObserver(() => {
+        if(!ref?.current) return;
+        const { offsetWidth, offsetHeight } = ref.current;
+        setBounds({ width: offsetWidth, height: offsetHeight });
+    });      
+    
+    React.useEffect(() => {
+        if(!ref?.current) return;
+        const { offsetWidth, offsetHeight } = ref.current;
+        setBounds({ width: offsetWidth, height: offsetHeight });
+
+        observer.observe(ref.current);
+
+        return () => {
+            observer.disconnect();
+        }
+    }, []);
+
+    return { ref, bounds };
+}
+
 export default (props: SquircleProps) => {
-    const [ ref, bounds ] = useMeasure();
+    const { ref, bounds } = useBounding();
 
     const { prepared } = computeSquircle(props, { ref, bounds });
 

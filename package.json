@@ -40,7 +40,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "react-merge-refs": "^2.1.1",
-    "react-use-measure": "^2.1.1"
+    "@juggle/resize-observer": "^3.4.0",
+    "react-merge-refs": "^2.1.1"
   }
 }
